@@ -1,0 +1,1031 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Misión Dragón Frambuesa</title>
+<style>
+:root{
+  --ground:#F2F6EC; --paper:#FFFFFF; --ink:#2A1B24; --soft:#6B5A63;
+  --rasp:#C2185B; --rasp-soft:#FBE1EC; --green:#3C8A37; --green-soft:#E1F0DC;
+  --sun:#F2B01E; --line:#DCE3D3; --bad:#B3261E; --bad-soft:#FBE4E2;
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+body{background:var(--ground);color:var(--ink);font-family:"Andika","Trebuchet MS",Verdana,sans-serif;font-size:19px;line-height:1.55;padding-inline:16px;padding-block:0 48px}
+.wrap{max-width:860px;margin:0 auto}
+h1,h2,h3,.disp{font-family:"Grandstander","Comic Sans MS","Trebuchet MS",sans-serif;text-wrap:balance;line-height:1.15}
+header{padding-block:28px 12px;display:flex;flex-wrap:wrap;gap:16px;align-items:center;justify-content:space-between}
+header h1{font-size:clamp(28px,6vw,44px);margin:0;color:var(--rasp);font-weight:800}
+header p{margin:4px 0 0;color:var(--soft);font-size:16px}
+.basket{display:flex;align-items:center;gap:10px;background:var(--paper);border:2px solid var(--rasp);border-radius:999px;padding:8px 16px;font-family:"Grandstander",sans-serif;font-weight:800;font-size:22px;color:var(--rasp)}
+.basket svg{width:30px;height:30px}
+nav{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--ground);padding-block:10px}
+nav [role="tablist"]{display:flex;gap:8px;overflow-x:auto}
+nav button{flex:0 0 auto;font:inherit;font-size:16px;font-weight:700;border:2px solid var(--green);background:var(--paper);color:var(--green);border-radius:14px;padding:8px 14px;cursor:pointer}
+nav button[aria-selected="true"]{background:var(--green);color:#fff}
+button:focus-visible,textarea:focus-visible{outline:3px solid var(--sun);outline-offset:2px}
+section{display:none}
+section.on{display:block}
+.intro{font-size:17px;color:var(--soft);margin:6px 0 18px;max-width:65ch}
+h2{font-size:30px;margin:18px 0 6px;color:var(--green)}
+/* cuento */
+.chapter{background:var(--paper);border-radius:18px;padding:20px 22px;margin-bottom:16px;border:1px solid var(--line)}
+.chapter .num{display:inline-block;font-family:"Grandstander",sans-serif;font-weight:800;color:var(--rasp);font-size:15px;letter-spacing:.06em;text-transform:uppercase}
+.chapter h3{margin:2px 0 8px;font-size:24px}
+.chapter p{margin:0 0 10px;max-width:65ch}
+.ask{background:var(--rasp-soft);border-radius:12px;padding:10px 14px;font-size:17px}
+.ask b{color:var(--rasp)}
+/* vocab */
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px}
+.card{font:inherit;text-align:left;background:var(--paper);border:2px solid var(--line);border-radius:16px;padding:16px;min-height:120px;cursor:pointer;color:var(--ink)}
+.card .w{font-family:"Grandstander",sans-serif;font-size:24px;font-weight:800;color:var(--green)}
+.card .hint{font-size:14px;color:var(--soft)}
+.card .m{display:none;font-size:17px;margin-top:6px}
+.card.open{border-color:var(--green);background:var(--green-soft)}
+.card.open .m{display:block}
+.card.open .hint{display:none}
+/* quiz */
+.levels{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:10px;margin-bottom:18px}
+.lvl{font:inherit;cursor:pointer;background:var(--paper);border:2px solid var(--line);border-radius:16px;padding:12px 14px;text-align:left;color:var(--ink)}
+.lvl b{display:block;font-family:"Grandstander",sans-serif;font-size:19px}
+.lvl span{font-size:14px;color:var(--soft)}
+.lvl.cur{border-color:var(--rasp);background:var(--rasp-soft)}
+.lvl.done b::after{content:" ✓";color:var(--green)}
+.q{background:var(--paper);border-radius:18px;padding:18px 20px;margin-bottom:14px;border:1px solid var(--line)}
+.q .qt{font-weight:700;margin:0 0 10px}
+.opts{display:grid;gap:8px}
+.opt{font:inherit;font-size:18px;text-align:left;background:var(--ground);border:2px solid var(--line);border-radius:12px;padding:10px 14px;cursor:pointer;color:var(--ink)}
+.opt:hover{border-color:var(--green)}
+.opt.ok{background:var(--green-soft);border-color:var(--green);font-weight:700}
+.opt.no{background:var(--bad-soft);border-color:var(--bad);text-decoration:line-through}
+.opt[disabled]{cursor:default}
+.fb{margin-top:8px;font-size:16px;min-height:1em}
+.fb.ok{color:var(--green)} .fb.no{color:var(--bad)}
+.tf{display:flex;gap:10px;flex-wrap:wrap}
+.tf .opt{flex:1 1 120px;text-align:center;font-weight:700}
+/* orden */
+.pool,.line{display:grid;gap:8px}
+.line{counter-reset:s;margin-bottom:14px}
+.step{font:inherit;font-size:17px;text-align:left;border-radius:12px;padding:10px 14px;border:2px dashed var(--rasp);background:var(--paper);cursor:pointer;color:var(--ink)}
+.line .step{border-style:solid;border-color:var(--green);background:var(--green-soft);counter-increment:s}
+.line .step::before{content:counter(s) ". ";font-weight:700;color:var(--green)}
+.line .step.wrong{border-color:var(--bad);background:var(--bad-soft)}
+.row{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px}
+.btn{font:inherit;font-weight:700;font-size:17px;border:none;border-radius:12px;padding:10px 18px;cursor:pointer;background:var(--rasp);color:#fff}
+.btn.alt{background:var(--paper);color:var(--rasp);border:2px solid var(--rasp)}
+/* sort */
+.bins{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px;margin-top:12px}
+.bin{border-radius:16px;padding:12px;min-height:110px;border:2px solid var(--line);background:var(--paper)}
+.bin h3{margin:0 0 8px;font-size:19px}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{font:inherit;font-size:16px;border-radius:999px;padding:6px 14px;border:2px solid var(--sun);background:#FFF6DC;cursor:pointer;color:var(--ink)}
+.chip.sel{outline:3px solid var(--rasp)}
+.chip.ok{border-color:var(--green);background:var(--green-soft)}
+.chip.no{border-color:var(--bad);background:var(--bad-soft)}
+/* escribir */
+textarea{width:100%;min-height:110px;font:inherit;font-size:18px;border:2px solid var(--line);border-radius:12px;padding:10px 12px;background:var(--ground);color:var(--ink)}
+details{margin-top:8px;font-size:16px}
+summary{cursor:pointer;color:var(--rasp);font-weight:700}
+.check{display:flex;flex-wrap:wrap;gap:8px 16px;margin-top:8px;font-size:16px}
+/* guía */
+.guide{background:var(--paper);border-radius:18px;padding:20px 22px;border:1px solid var(--line);margin-bottom:16px}
+.guide h3{margin:0 0 8px;font-size:22px;color:var(--rasp)}
+.guide li{margin-bottom:6px;max-width:65ch}
+.plan{width:100%;border-collapse:collapse;font-size:16px}
+.plan td,.plan th{padding:8px 10px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+.plan th{font-family:"Grandstander",sans-serif;color:var(--green)}
+.tablewrap{overflow-x:auto}
+.tiers{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px}
+.tier{background:var(--paper);border:2px solid var(--line);border-radius:18px;padding:16px 18px}
+.tier.reached{border-color:var(--rasp);background:var(--rasp-soft)}
+.tier .cost{font-family:"Grandstander",sans-serif;font-weight:800;font-size:26px;color:var(--rasp);line-height:1}
+.tier .cost small{font-size:15px;font-weight:600;color:var(--soft)}
+.tier h3{margin:6px 0 8px;font-size:20px;color:var(--green)}
+.tier ul{margin:0;padding-left:20px;font-size:17px}
+.tier li{margin-bottom:5px}
+.bar{height:10px;border-radius:99px;background:var(--line);overflow:hidden;margin-top:10px}
+.bar i{display:block;height:100%;background:var(--rasp)}
+.tier .st{font-size:14px;color:var(--soft);margin-top:4px}
+.win{display:none;margin-top:12px;background:var(--rasp);color:#fff;border-radius:16px;padding:14px 18px;font-family:"Grandstander",sans-serif;font-size:22px}
+.win.show{display:block}
+@media (prefers-reduced-motion:no-preference){.opt,.chip,.card,.step{transition:background .15s,border-color .15s}}
+
+/* pie de pagina */
+.pie{margin-top:28px;border-top:1px solid var(--line);padding-top:12px;color:var(--soft);font-size:14px}
+.pie p{margin:0;max-width:65ch}
+section:focus-visible{outline:3px solid var(--sun);outline-offset:6px;border-radius:12px}
+
+/* el camino del dragon */
+.mapa{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin:14px 0 18px}
+.parada{font:inherit;text-align:left;cursor:pointer;color:var(--ink);background:var(--paper);border:2px solid var(--line);border-radius:18px;padding:14px 16px;position:relative}
+.parada:hover{border-color:var(--green)}
+.parada .paso{font-family:"Grandstander",sans-serif;font-size:14px;color:var(--rasp);font-weight:800;letter-spacing:.05em;text-transform:uppercase}
+.parada h3{margin:2px 0 4px;font-size:21px;font-family:"Grandstander",sans-serif;color:var(--green)}
+.parada p{margin:0;font-size:15px;color:var(--soft)}
+.parada.lista{border-color:var(--green);background:var(--green-soft)}
+.parada .dragon{position:absolute;right:10px;top:10px;font-size:22px}
+.jbox{background:var(--paper);border:1px solid var(--line);border-radius:18px;padding:20px}
+.jbox h3{margin:0 0 4px;font-size:24px;font-family:"Grandstander",sans-serif;color:var(--rasp)}
+.jbox .reglas{margin:0 0 14px;color:var(--soft);font-size:16px}
+.grande{font-family:"Grandstander",sans-serif;font-size:clamp(34px,9vw,54px);color:var(--green);text-align:center;margin:10px 0 16px;letter-spacing:.02em}
+.pal{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px}
+.pal button{font:inherit;font-family:"Andika",sans-serif;font-size:26px;padding:14px 10px;border-radius:14px;border:2px solid var(--line);background:var(--ground);cursor:pointer;color:var(--ink)}
+.pal button.ok{background:var(--green-soft);border-color:var(--green)}
+.pal button.no{background:var(--bad-soft);border-color:var(--bad)}
+.silabas{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin-bottom:12px;min-height:56px}
+.silabas button,.banco button{font:inherit;font-family:"Andika",sans-serif;font-size:26px;padding:8px 16px;border-radius:12px;border:2px solid var(--sun);background:#FFF6DC;cursor:pointer;color:var(--ink)}
+.silabas button{border-color:var(--green);background:var(--green-soft)}
+.banco{display:flex;flex-wrap:wrap;gap:10px;justify-content:center}
+.memo{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;max-width:520px;margin:0 auto}
+.memo button{font:inherit;font-family:"Andika",sans-serif;font-size:22px;aspect-ratio:1;border-radius:14px;border:2px solid var(--line);background:var(--rasp-soft);color:transparent;cursor:pointer}
+.memo button.vista{color:var(--ink);background:var(--paper);border-color:var(--green)}
+.memo button.hecha{color:var(--green);background:var(--green-soft);border-color:var(--green);cursor:default}
+.marcador{text-align:center;font-size:17px;color:var(--soft);margin-top:12px}
+.lugs{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px}
+.lug{font:inherit;cursor:pointer;background:var(--ground);border:2px solid var(--line);border-radius:14px;padding:10px;color:var(--ink);display:flex;flex-direction:column;align-items:center;gap:6px}
+.lug svg{width:70px;height:52px}
+.lug span{font-size:15px;text-align:center}
+.lug.ok{background:var(--green-soft);border-color:var(--green)}
+.lug.no{background:var(--bad-soft);border-color:var(--bad)}
+.sprites{position:absolute;width:0;height:0;overflow:hidden}
+.escena{display:flex;gap:10px;justify-content:flex-start;margin:6px 0 10px}
+.escena svg{width:84px;height:68px;background:var(--ground);border-radius:14px;padding:4px}
+.pers{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px}
+.pers-op{font:inherit;cursor:pointer;background:var(--ground);border:2px solid var(--line);border-radius:16px;padding:10px;color:var(--ink);display:flex;flex-direction:column;align-items:center;gap:6px}
+.pers-op svg{width:96px;height:76px}
+.pers-op span{font-size:15px;text-align:center;line-height:1.25}
+.pers-op.ok{background:var(--green-soft);border-color:var(--green)}
+.pers-op.no{background:var(--bad-soft);border-color:var(--bad)}
+/* prueba final */
+.pts{float:right;font-size:14px;color:var(--rasp);font-weight:700}
+.fila{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between;border-bottom:1px solid var(--line);padding:8px 0}
+.fila span{flex:1 1 240px;font-size:17px}
+.sino{display:flex;gap:8px}
+.sino .opt{min-width:72px;text-align:center;font-weight:700}
+.extracto{background:var(--ground);border-left:5px solid var(--green);border-radius:10px;padding:12px 14px;font-size:18px;margin-bottom:6px}
+.abierta{border-top:1px solid var(--line);padding-top:12px;margin-top:12px}
+.abierta p{margin:0 0 6px}
+.rub{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:8px;margin-top:8px}
+.rub .opt{font-size:14px;line-height:1.3}
+.rub .opt b{font-family:"Grandstander",sans-serif;color:var(--green)}
+.reglas{color:var(--soft);font-size:16px;margin:0 0 8px}
+
+</style>
+</head><body>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Andika:wght@400;700&family=Grandstander:wght@600;800&display=swap">
+<div class="wrap">
+<header class="topbar">
+  <div>
+    <h1>Misión Dragón Frambuesa</h1>
+    <p>Para preparar la prueba de «El dragón color frambuesa» de Georg Bydlinski</p>
+  </div>
+  <div class="basket" title="Frambuesas ganadas">
+    <svg viewBox="0 0 32 32" aria-hidden="true"><g fill="#C2185B"><circle cx="11" cy="14" r="4"/><circle cx="19" cy="14" r="4"/><circle cx="15" cy="20" r="4"/><circle cx="9" cy="20" r="3.4"/><circle cx="21" cy="20" r="3.4"/><circle cx="15" cy="26" r="3.6"/></g><path d="M12 8c2-3 6-3 8 0" stroke="#3C8A37" stroke-width="2.4" fill="none" stroke-linecap="round"/></svg>
+    <output id="score" aria-label="Frambuesas ganadas">0</output>
+  </div>
+</header>
+
+<nav class="tabs" aria-label="Secciones de la misión">
+<div role="tablist" aria-label="Secciones de la misión">
+  <button role="tab" id="tab-juego" aria-controls="juego" data-tab="juego" aria-selected="true">El camino del dragón</button>
+  <button role="tab" id="tab-cuento" aria-controls="cuento" data-tab="cuento" aria-selected="false">1 · El cuento</button>
+  <button role="tab" id="tab-palabras" aria-controls="palabras" data-tab="palabras" aria-selected="false">2 · Palabras</button>
+  <button role="tab" id="tab-prueba" aria-controls="prueba" data-tab="prueba" aria-selected="false">3 · Prueba de práctica</button>
+  <button role="tab" id="tab-escribir" aria-controls="escribir" data-tab="escribir" aria-selected="false">4 · Escribir</button>
+  <button role="tab" id="tab-final" aria-controls="final" data-tab="final" aria-selected="false">Prueba final</button>
+  <button role="tab" id="tab-premios" aria-controls="premios" data-tab="premios" aria-selected="false">Celebraciones</button>
+  <button role="tab" id="tab-guia" aria-controls="guia" data-tab="guia" aria-selected="false">Para el adulto</button>
+</div>
+</nav>
+
+<svg width="0" height="0" class="sprites" aria-hidden="true" focusable="false"><defs>
+  <symbol id="i-dragon-rosa" viewBox="0 0 100 80">
+    <ellipse cx="46" cy="52" rx="26" ry="18" fill="#E7559A"/>
+    <path d="M70 50 92 66 66 66z" fill="#E7559A"/>
+    <path d="M40 34c0-9 8-16 18-16s18 7 18 16-8 14-18 14-18-5-18-14z" fill="#F06FAA"/>
+    <circle cx="66" cy="30" r="3" fill="#2B2925"/>
+    <path d="M34 40 22 24l20 6z" fill="#6FC3E8"/>
+    <g fill="#C2185B"><circle cx="40" cy="50" r="3.2"/><circle cx="52" cy="58" r="2.6"/><circle cx="30" cy="56" r="2.4"/></g>
+    <path d="M28 66v8M46 66v8M60 64v10" stroke="#E7559A" stroke-width="6" stroke-linecap="round"/>
+  </symbol>
+  <symbol id="i-dragon-verde" viewBox="0 0 100 80">
+    <ellipse cx="46" cy="52" rx="26" ry="18" fill="#3C8A37"/>
+    <path d="M70 50 92 66 66 66z" fill="#3C8A37"/>
+    <path d="M40 34c0-9 8-16 18-16s18 7 18 16-8 14-18 14-18-5-18-14z" fill="#4FA246"/>
+    <circle cx="66" cy="30" r="3" fill="#2B2925"/>
+    <path d="M34 40 22 24l20 6z" fill="#9B7FD4"/>
+    <path d="M28 66v8M46 66v8M60 64v10" stroke="#3C8A37" stroke-width="6" stroke-linecap="round"/>
+  </symbol>
+  <symbol id="i-dragona" viewBox="0 0 100 80">
+    <ellipse cx="46" cy="52" rx="26" ry="18" fill="#2E9B87"/>
+    <path d="M70 50 92 66 66 66z" fill="#2E9B87"/>
+    <path d="M40 34c0-9 8-16 18-16s18 7 18 16-8 14-18 14-18-5-18-14z" fill="#3FB39C"/>
+    <circle cx="66" cy="30" r="3" fill="#2B2925"/>
+    <path d="M34 40 22 24l20 6z" fill="#F2B01E"/>
+    <g transform="translate(44,20)"><circle r="4" fill="#F2B01E"/><g fill="#E7559A"><circle cx="0" cy="-7" r="4"/><circle cx="7" cy="0" r="4"/><circle cx="0" cy="7" r="4"/><circle cx="-7" cy="0" r="4"/></g><circle r="3" fill="#FFF3C4"/></g>
+    <path d="M28 66v8M46 66v8M60 64v10" stroke="#2E9B87" stroke-width="6" stroke-linecap="round"/>
+  </symbol>
+  <symbol id="i-granjero" viewBox="0 0 100 80">
+    <circle cx="40" cy="20" r="10" fill="#E8C49A"/><path d="M26 16h28l-4-6H30z" fill="#8E4B2A"/>
+    <path d="M40 30v26" stroke="#B0512D" stroke-width="12" stroke-linecap="round"/>
+    <path d="M40 56 32 74M40 56l8 18" stroke="#4A4038" stroke-width="7" stroke-linecap="round"/>
+    <path d="M52 34 74 12" stroke="#8E6B3A" stroke-width="4" stroke-linecap="round"/>
+    <path d="M70 16 84 6l4 8-14 8z" fill="#C98A2B"/>
+  </symbol>
+  <symbol id="i-gato" viewBox="0 0 100 80">
+    <path d="M28 30 24 12l16 10zM72 30 76 12 60 22z" fill="#5A4636"/>
+    <ellipse cx="50" cy="42" rx="26" ry="22" fill="#6B5544"/>
+    <g fill="#F6F0E4"><circle cx="40" cy="38" r="4"/><circle cx="60" cy="38" r="4"/></g>
+    <g fill="#2B2925"><circle cx="40" cy="38" r="2"/><circle cx="60" cy="38" r="2"/></g>
+    <path d="M50 48l-4 4h8z" fill="#E7559A"/>
+    <path d="M24 46H8M24 52H8M76 46h16M76 52h16" stroke="#F6F0E4" stroke-width="2"/>
+  </symbol>
+  <symbol id="i-gente" viewBox="0 0 100 80">
+    <rect x="10" y="14" width="80" height="58" rx="4" fill="#C98A2B"/>
+    <g fill="#6B3E22"><rect x="20" y="26" width="24" height="22" rx="2"/><rect x="56" y="26" width="24" height="22" rx="2"/></g>
+    <g fill="#E8C49A"><circle cx="32" cy="36" r="7"/><circle cx="68" cy="36" r="7"/></g>
+    <rect x="40" y="54" width="20" height="18" fill="#2F6B8A"/>
+    <circle cx="26" cy="60" r="5" fill="#B0512D"/><circle cx="74" cy="62" r="4" fill="#B0512D"/>
+  </symbol>
+  <symbol id="i-pintura" viewBox="0 0 100 80">
+    <path d="M28 30h34v38a4 4 0 0 1-4 4H32a4 4 0 0 1-4-4z" fill="#BFC7CC"/>
+    <rect x="26" y="24" width="38" height="8" rx="3" fill="#8E999F"/>
+    <path d="M34 44h22v18H34z" fill="#3C8A37"/>
+    <path d="M74 20 88 6l6 6-14 14z" fill="#B0512D"/><path d="M66 28l10-10 6 6-10 10z" fill="#8E6B3A"/>
+  </symbol>
+  <symbol id="i-frambuesa" viewBox="0 0 100 80">
+    <g fill="#C2185B"><circle cx="40" cy="36" r="10"/><circle cx="58" cy="36" r="10"/><circle cx="49" cy="52" r="10"/><circle cx="33" cy="50" r="8"/><circle cx="65" cy="50" r="8"/><circle cx="49" cy="66" r="8"/></g>
+    <path d="M40 22c4-8 16-8 20 0" stroke="#3C8A37" stroke-width="5" fill="none" stroke-linecap="round"/>
+  </symbol>
+  <symbol id="i-noche" viewBox="0 0 100 80">
+    <rect width="100" height="80" rx="8" fill="#2B2350"/>
+    <path d="M62 16a22 22 0 1 0 0 44 26 26 0 0 1 0-44z" fill="#F5E6A8"/>
+    <g fill="#FFF3C4"><circle cx="20" cy="22" r="2.5"/><circle cx="34" cy="50" r="2"/><circle cx="16" cy="60" r="2"/><circle cx="82" cy="64" r="2.5"/></g>
+  </symbol>
+  <symbol id="i-maleta" viewBox="0 0 100 80">
+    <rect x="18" y="28" width="64" height="42" rx="6" fill="#B0512D"/>
+    <rect x="38" y="16" width="24" height="12" rx="4" fill="none" stroke="#8E4B2A" stroke-width="5"/>
+    <rect x="18" y="44" width="64" height="7" fill="#8E4B2A"/>
+  </symbol>
+  <symbol id="i-fiesta" viewBox="0 0 100 80">
+    <path d="M6 16q24 16 44 0t44 0" stroke="#6B5544" stroke-width="2" fill="none"/>
+    <g><path d="M18 20l8 14 8-14z" fill="#E7559A"/><path d="M42 26l8 14 8-14z" fill="#F2B01E"/><path d="M66 22l8 14 8-14z" fill="#3C8A37"/></g>
+    <g fill="#C2185B"><circle cx="30" cy="62" r="7"/><circle cx="50" cy="66" r="7"/><circle cx="70" cy="60" r="7"/></g>
+    <path d="M24 74h56" stroke="#C98A2B" stroke-width="6" stroke-linecap="round"/>
+  </symbol>
+</defs></svg>
+
+<main id="contenido">
+
+<!-- JUEGO -->
+<section id="juego" role="tabpanel" tabindex="0" aria-labelledby="tab-juego" class="on">
+  <h2>El camino del dragón</h2>
+  <p class="intro">Siete paradas en el camino de vuelta al País de los Dragones. En cada una hay un juego corto. No hay reloj ni forma de perder: se juega un ratito y se deja para mañana. Las paradas 5 y 6 se juegan con el libro en la mano.</p>
+  <div class="mapa" id="mapa"></div>
+  <div id="juego-stage"></div>
+</section>
+
+<!-- CUENTO -->
+<section id="cuento" role="tabpanel" tabindex="0" aria-labelledby="tab-cuento">
+  <h2>El cuento en 6 partes</h2>
+  <p class="intro">Una parte por sesión, de 5 minutos. Mientras tú lees en voz alta, el niño puede tener en la mano su botella sensorial. Al terminar, conversen la pregunta rosada: no hay respuestas malas.</p>
+
+  <article class="chapter"><span class="num">Parte 1</span><div class="escena"><svg viewBox="0 0 100 80"><use href="#i-dragon-rosa"/></svg><svg viewBox="0 0 100 80"><use href="#i-frambuesa"/></svg></div><h3>Un dragón distinto</h3>
+    <p>En el País de los Dragones todos los dragones eran verdes. Pero había un pequeño dragón distinto: era color frambuesa y tenía la piel llena de lunares rojos. ¿Por qué? ¡Porque las frambuesas eran su fruta favorita!</p>
+    <p>Cada mañana llenaba su cesta de frambuesas y se las comía todas apoyado en un árbol. Cuando los otros dragones le pedían unas pocas, se metía un puñado en la boca y decía: «Ya no me queda ni una».</p>
+    <aside class="ask"><b>Pregunta:</b> ¿Qué hacía el dragón cuando le pedían frambuesas? ¿Eso estaba bien?</aside></article>
+
+  <article class="chapter"><span class="num">Parte 2</span><div class="escena"><svg viewBox="0 0 100 80"><use href="#i-dragon-verde"/></svg><svg viewBox="0 0 100 80"><use href="#i-dragon-verde"/></svg></div><h3>Las burlas y la pintura verde</h3>
+    <p>Los otros dragones se enojaban, bailaban a su alrededor y se burlaban: «¡Ja, ja! ¡Un dragón color frambuesa!». Al pequeño dragón se le quitaban las ganas de comer.</p>
+    <p>Un día tuvo una idea: compró un bote de pintura y un pincel y <b>se pintó entero de verde</b>. Se miró en la laguna y se puso muy contento.</p>
+    <aside class="ask"><b>Pregunta:</b> ¿Por qué crees que se pintó de verde?</aside></article>
+
+  <article class="chapter"><span class="num">Parte 3</span><div class="escena"><svg viewBox="0 0 100 80"><use href="#i-pintura"/></svg><svg viewBox="0 0 100 80"><use href="#i-dragon-verde"/></svg></div><h3>La laguna</h3>
+    <p>Como hacía calor, se tiró a la laguna a bañarse. Flotando, miraba las nubes y no se dio cuenta de que <b>la pintura se le estaba saliendo</b> y el agua se ponía verdísima.</p>
+    <p>Al salir, los dragones se burlaron otra vez: «¿O te crees que ahora eres verde?». Él vio el agua verde oscura y sintió mucha vergüenza. Esa noche no pudo dormir.</p>
+    <aside class="ask"><b>Pregunta:</b> ¿Cómo se sintió el dragón? ¿Te ha pasado sentir vergüenza?</aside></article>
+
+  <article class="chapter"><span class="num">Parte 4</span><div class="escena"><svg viewBox="0 0 100 80"><use href="#i-gente"/></svg><svg viewBox="0 0 100 80"><use href="#i-maleta"/></svg></div><h3>La ciudad</h3>
+    <p>Antes de que amaneciera, hizo su maleta y <b>se fue del País de los Dragones</b>. Caminó y caminó hasta llegar a una ciudad. Saludó muy amable: «¡Hola! ¡Soy un dragón! ¡Buenos días!».</p>
+    <p>Pero la gente se asustó, cerró las puertas y le tiró macetas, tomates y piedras por las ventanas. El dragón se puso triste y se fue.</p>
+    <aside class="ask"><b>Pregunta:</b> ¿Por qué la gente le tiró cosas si él saludó amable?</aside></article>
+
+  <article class="chapter"><span class="num">Parte 5</span><div class="escena"><svg viewBox="0 0 100 80"><use href="#i-gato"/></svg><svg viewBox="0 0 100 80"><use href="#i-noche"/></svg></div><h3>La granja y la pesadilla</h3>
+    <p>Por la tarde llegó cansado a una granja y se acostó en la paja del establo. <b>Los animales lo recibieron con simpatía</b>, y un gato se enrolló en su cola y ronroneó feliz.</p>
+    <p>En la noche tuvo una pesadilla: estaba encerrado en un jardín diminuto con una reja muy alta. Al otro lado estaban los dragones y una dragona lloraba. Al despertar, <b>el granjero lo amenazó con una escoba</b>: «¡Tú, monstruo, desaparece de mi vista!». Y el dragón huyó.</p>
+    <aside class="ask"><b>Pregunta:</b> ¿Quiénes fueron buenos con el dragón y quién no?</aside></article>
+
+  <article class="chapter"><span class="num">Parte 6</span><div class="escena"><svg viewBox="0 0 100 80"><use href="#i-dragona"/></svg><svg viewBox="0 0 100 80"><use href="#i-fiesta"/></svg></div><h3>De vuelta a casa</h3>
+    <p>Se durmió en un bosquecillo. Al despertar vio pájaros, hormigas y un ratón, y pensó: «Todos tienen un hogar, todos menos yo». Sintió <b>nostalgia</b>: echaba de menos su país y a los otros dragones. Entonces dio media vuelta y volvió.</p>
+    <p>A la mañana siguiente, los dragones le preguntaron dónde había estado. La dragona de su sueño le dijo bajito: <b>«Te he echado de menos y no me importa que tengas lunares como una frambuesa»</b>. El dragón, feliz, tiró su cesta al suelo y gritó: «¡Comed todos!». <b>Compartió sus frambuesas</b> e hicieron una gran fiesta.</p>
+    <aside class="ask"><b>Pregunta:</b> ¿Qué cambió en el dragón al final? ¿Qué nos enseña el cuento?</aside></article>
+</section>
+
+<!-- PALABRAS -->
+<section id="palabras" role="tabpanel" tabindex="0" aria-labelledby="tab-palabras">
+  <h2>Palabras del cuento</h2>
+  <p class="intro">Toca una tarjeta para ver qué significa. Inventar una oración con la palabra es parte del juego, y toda la familia puede jugar a reconocerlas durante la semana.</p>
+  <div class="cards" id="cards"></div>
+</section>
+
+<!-- PRUEBA -->
+<section id="prueba" role="tabpanel" tabindex="0" aria-labelledby="tab-prueba">
+  <h2>Prueba de práctica</h2>
+  <p class="intro">Cinco niveles. Cada respuesta que el niño piensa y elige suma una frambuesa, acierte o no: la cesta cuenta lo que hizo, no lo que sabía.</p>
+  <div class="levels" id="levels"></div>
+  <div id="stage"></div>
+</section>
+
+<!-- ESCRIBIR -->
+<section id="escribir" role="tabpanel" tabindex="0" aria-labelledby="tab-escribir">
+  <h2>Escribir como en la prueba</h2>
+  <p class="intro">Respuestas cortas, de 1 o 2 oraciones. Primero el niño la dice en voz alta y después la escribe. El adulto revisa la lista de abajo y le da una frambuesa por cada cosa cumplida.</p>
+  <div id="writes"></div>
+</section>
+
+<!-- PRUEBA FINAL -->
+<section id="final" role="tabpanel" tabindex="0" aria-labelledby="tab-final">
+  <h2>Prueba final</h2>
+  <p class="intro">Ensayo armado con el mismo formato y las mismas preguntas tipo de las guías de la profesora: cinco secciones, 26 puntos y un bonus. <b>El adulto lee las preguntas en voz alta</b> y el niño responde. Sin tiempo. Es un ensayo, no una nota: sirve para que el día de la prueba nada lo tome por sorpresa.</p>
+  <div id="final-stage"></div>
+</section>
+
+<!-- PREMIOS -->
+<section id="premios" role="tabpanel" tabindex="0" aria-labelledby="tab-premios">
+  <h2>Celebraciones del camino</h2>
+  <p class="intro">No son premios que se ganan por respuestas correctas. Son paradas del camino: cuando la cesta llega a una, la familia se junta a celebrar lo que el niño ya puede hacer, y él elige cómo.</p>
+  <div class="tiers" id="tiers"></div>
+  <article class="guide" style="margin-top:16px"><h3>Cómo usar estas paradas</h3>
+    <ul>
+      <li><b>No son un pago.</b> Celebrar no debería llegar justo después de cada respuesta, sino cerrar una etapa del camino.</li>
+      <li><b>El niño elige la celebración</b> y, mejor todavía, propone las suyas.</li>
+      <li><b>Celebrar lo que ya puede hacer:</b> «leíste tú solo el título», «te acordaste de lo que pasó en la laguna».</li>
+      <li><b>Sin pantallas</b>, para cuidar su plan.</li>
+      <li><b>Nada se quita nunca.</b> Lo que está en la cesta queda en la cesta.</li>
+      <li><b>Sin comparar</b> con hermanos, primos ni compañeros. Su única referencia es él mismo.</li>
+    </ul></article>
+</section>
+
+<!-- GUÍA -->
+<section id="guia" role="tabpanel" tabindex="0" aria-labelledby="tab-guia">
+  <h2>Guía para el adulto</h2>
+  <article class="guide"><h3>Plan de 5 días (5 a 7 minutos cada uno)</h3>
+    <div class="tablewrap"><table class="plan">
+      <tr><th>Día</th><th>Qué hacer</th></tr>
+      <tr><td>1</td><td>El adulto lee las partes 1 y 2 en voz alta, con voces. El niño escucha con su botella sensorial en la mano y después cuenta lo que pasó.</td></tr>
+      <tr><td>2</td><td>Partes 3 y 4. El niño lee solo una frase corta que se repite, si quiere. Tarjetas de palabras: repleta, burla y vergüenza.</td></tr>
+      <tr><td>3</td><td>Partes 5 y 6, y el nivel «Ordena la historia» conversando en voz alta.</td></tr>
+      <tr><td>4</td><td>Un nivel de la prueba de práctica, el que él elija. Si se cansa antes, se para ahí.</td></tr>
+      <tr><td>5</td><td>Contar el cuento completo con sus palabras, mirando los dibujos. Una actividad de caligrafía entretenida. Celebrar lo que ya puede hacer.</td></tr>
+    </table></div>
+  </article>
+  <article class="guide"><h3>Antes de empezar: que sea agradable</h3>
+    <ul>
+      <li><b>Sesiones muy cortas.</b> Empezar con 5 minutos y parar mientras todavía lo está pasando bien. Ese es el mejor momento para parar.</li>
+      <li><b>Una botella sensorial</b> para que el niño tenga las manos ocupadas mientras escucha: una botella plástica con agua, un poco de aceite de bebé o glicerina, purpurina, cuentas o animalitos chicos, y la tapa sellada con silicona. Hacerla juntos ya es parte del proyecto.</li>
+      <li><b>Cero apuro y cero reloj a la vista.</b> Si hay que medir su velocidad, que lo haga el adulto de forma discreta y no todas las sesiones.</li>
+      <li><b>Sin comparaciones</b> con hermanos, primos ni compañeros.</li>
+      <li><b>Observar qué le genera ansiedad</b>: que lo escuchen otros, equivocarse en voz alta, el tamaño de la letra, un texto muy largo. Anotarlo y ajustar.</li>
+      <li><b>Darle sentido a la lectura para su vida:</b> leer las reglas de un juego, el nombre de un animal, una receta, un mensaje de la abuela. Leer sirve para lo que a él le importa.</li>
+    </ul></article>
+  <article class="guide"><h3>Escribir sin que sea un castigo</h3>
+    <ul>
+      <li><b>Escribir cosas que quiere mandar:</b> una carta a un familiar, una postal, una lista para la expedición, la etiqueta del frasco de mermelada.</li>
+      <li><b>Poco y con buena forma:</b> dos o tres líneas bien hechas valen más que media página apurada.</li>
+      <li><b>Letras grandes y con espacio</b>, y que él elija el lápiz o el color.</li>
+      <li><b>Toda la familia juega</b> a reconocer palabras del día: en carteles de la calle, en el supermercado, en las cajas de la cocina.</li>
+    </ul></article>
+  <article class="guide"><h3>Si no tiene ganas de leer</h3>
+    <ul>
+      <li><b>Leer por turnos y con voces</b>: voz burlona para los dragones verdes, voz enojada para el granjero y voz suave para la dragona. Así leer se vuelve un juego.</li>
+      <li><b>Mirar primero los dibujos</b>. Antes de leer, pregunten qué creen que va a pasar. Adivinar da curiosidad por leer.</li>
+      <li><b>Pocas correcciones</b>. Si se equivoca en una palabra que no cambia el sentido, dejen que siga. Corrijan solo lo que cambia el significado.</li>
+      <li><b>Las frambuesas cuentan lo que hizo, no lo que acertó.</b> En la pestaña «Celebraciones» están las paradas del camino.</li>
+      <li><b>Es mejor parar cuando todavía está entretenido</b> que seguir hasta que se canse. Si un día no quiere, no pasa nada: se retoma al día siguiente.</li>
+    </ul></article>
+  <article class="guide"><h3>Lo que más suele preguntarse en la prueba</h3>
+    <ul>
+      <li><b>Personaje principal</b>: el pequeño dragón color frambuesa.</li>
+      <li><b>Personajes secundarios</b>: los dragones verdes, la dragona, la gente de la ciudad, los animales de la granja, el gato y el granjero.</li>
+      <li><b>Lugares</b>: el País de los Dragones (con su laguna), la ciudad, la granja con su establo y el bosquecillo.</li>
+      <li><b>Problema</b>: era distinto a los demás, se burlaban de él y no quería compartir.</li>
+      <li><b>Solución</b>: vuelve a casa, la dragona lo acepta como es y él comparte sus frambuesas.</li>
+      <li><b>Mensaje</b>: hay que aceptar a los que son distintos (y aceptarse uno mismo) y es bueno compartir.</li>
+    </ul></article>
+  <div class="row"><button class="btn alt" id="reset">Reiniciar las frambuesas</button></div>
+</section>
+</main>
+
+<footer class="pie">
+  <p>Material de apoyo para «El dragón color frambuesa», de Georg Bydlinski. El avance se guarda en este mismo aparato.</p>
+</footer>
+</div>
+<script>
+(function(){
+const store={get(k,d){try{const v=localStorage.getItem(k);return v===null?d:JSON.parse(v)}catch(e){return d}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
+let score=store.get("md_score",0);
+const scoreEl=document.getElementById("score");
+const TIERS=[
+ {cost:20,name:"Primera parada",items:["Contarle a alguien de la familia la parte del cuento que más le gustó","Elegir el cuento de la noche","Salir a mirar bichos o pájaros un rato"]},
+ {cost:50,name:"Segunda parada",items:["Cocinar algo con frambuesas y ponerle el nombre al frasco","Escribirle una carta corta a alguien de la familia","Elegir el panorama del fin de semana"]},
+ {cost:90,name:"Fiesta del dragón",items:["Plantar su propia mata de frambuesas","Una salida a una granja, un humedal o un parque de animales","Una once de celebración con la familia, contando lo que aprendió"]}
+];
+const tiersEl=document.getElementById("tiers");
+function drawTiers(){
+  tiersEl.innerHTML="";
+  TIERS.forEach(t=>{const pct=Math.min(100,Math.round(score/t.cost*100));const ok=score>=t.cost;
+    const d=document.createElement("div");d.className="tier"+(ok?" reached":"");
+    d.innerHTML=`<div class="cost">${t.cost} <small>frambuesas</small></div><h3>${t.name}</h3><ul>${t.items.map(i=>`<li>${i}</li>`).join("")}</ul>
+    <div class="bar"><i style="width:${pct}%"></i></div><div class="st">${ok?"Llegaste hasta aquí. Elijan juntos qué hacer para celebrarlo.":`Vas en ${score} de ${t.cost}`}</div>`;
+    tiersEl.appendChild(d)});
+}
+function add(n){score=Math.max(0,score+n);scoreEl.textContent=score;store.set("md_score",score);drawTiers()}
+scoreEl.textContent=score;drawTiers();
+
+/* tabs */
+document.querySelectorAll("nav button").forEach(b=>b.addEventListener("click",()=>{
+  document.querySelectorAll("nav button").forEach(x=>x.setAttribute("aria-selected",x===b));
+  document.querySelectorAll("section").forEach(s=>s.classList.toggle("on",s.id===b.dataset.tab));
+  store.set("md_tab",b.dataset.tab);
+}));
+const lastTab=store.get("md_tab",null);
+if(lastTab){const b=document.querySelector(`nav button[data-tab="${lastTab}"]`);if(b)b.click()}
+
+/* vocab */
+const vocab=[
+["repleta","Muy llena. «La cesta estaba repleta de frambuesas»."],
+["puñado","Lo que cabe en una mano cerrada."],
+["burla","Reírse de alguien para hacerlo sentir mal."],
+["vergüenza","Lo que sientes cuando crees que hiciste el ridículo. Te pones colorado."],
+["a cal y canto","Cerrado muy bien, sin dejar pasar a nadie."],
+["establo","Lugar de la granja donde duermen los animales."],
+["pesadilla","Un sueño feo que da miedo."],
+["diminuto","Muy, muy pequeño."],
+["verja","Una reja, como las de un jardín."],
+["amenazar","Decir o hacer algo para asustar a otro. El granjero lo amenazó con una escoba."],
+["agotado","Muy, muy cansado."],
+["carantoñas","Cariños. Los pájaros se hacían carantoñas."],
+["nostalgia","Pena por extrañar un lugar o a alguien."],
+["echar de menos","Extrañar. «Te he echado de menos»."]
+];
+const cards=document.getElementById("cards");
+const seenV=new Set(store.get("md_vocab",[]));
+vocab.forEach(([w,m],i)=>{
+  const c=document.createElement("button");c.className="card";c.type="button";
+  c.innerHTML=`<div class="w">${w}</div><div class="hint">Toca para ver el significado</div><div class="m">${m}</div>`;
+  c.addEventListener("click",()=>{c.classList.toggle("open");if(!seenV.has(i)){seenV.add(i);store.set("md_vocab",[...seenV])}});
+  cards.appendChild(c);
+});
+
+/* quiz data */
+const MC=[
+["¿De qué color era el pequeño dragón?",["Verde, como todos","Color frambuesa, con lunares rojos","Azul con alas moradas"],1],
+["¿Por qué tenía ese color?",["Porque comía muchas frambuesas","Porque se cayó en pintura","Porque un mago lo embrujó"],0],
+["¿Qué hacía cuando los otros dragones le pedían frambuesas?",["Les daba la mitad","Decía que no le quedaba ninguna","Les enseñaba dónde había más"],1],
+["¿Qué hacían los otros dragones?",["Jugaban con él","Se burlaban y bailaban a su alrededor","Le traían regalos"],1],
+["¿Qué idea tuvo el dragón para ser como los demás?",["Dejar de comer frambuesas","Pintarse de verde","Esconderse en una cueva"],1],
+["¿Qué pasó cuando se bañó en la laguna?",["Se le salió la pintura y el agua quedó verde","Se volvió verde de verdad","Encontró un pez amigo"],0],
+["¿Qué hizo la gente de la ciudad?",["Le dio comida","Se asustó y le tiró macetas, tomates y piedras","Le hizo una fiesta"],1],
+["¿Dónde durmió en la granja?",["En la cama del granjero","En la paja del establo","Arriba de un árbol"],1],
+["¿Qué animal se enrolló en su cola?",["Un perro","Un gato","Una gallina"],1],
+["¿Por qué volvió al País de los Dragones?",["Porque sintió nostalgia: extrañaba su país y a los dragones","Porque se le acabó la plata","Porque lo fueron a buscar"],0],
+["¿Qué le dijo la dragona?",["Que se fuera","Que lo había echado de menos y no le importaban sus lunares","Que se pintara otra vez"],1],
+["¿Qué hizo el dragón al final con sus frambuesas?",["Se las comió solo","Las escondió","Las compartió con todos"],2],
+["¿Qué nos enseña el cuento?",["Que hay que ser igual a todos","Que hay que aceptar a los que son distintos y compartir","Que los dragones son malos"],1]
+];
+const TF=[
+["El dragón vivía en el País de los Dragones.",true],
+["Todos los dragones eran color frambuesa.",false],
+["El dragón se pintó de azul.",false],
+["La pintura se salió en la laguna.",true],
+["En la ciudad lo recibieron con cariño.",false],
+["Los animales de la granja lo recibieron con simpatía.",true],
+["El granjero lo amenazó con una escoba.",true],
+["En su pesadilla estaba encerrado detrás de una reja muy alta.",true],
+["Al final, el dragón no quiso volver a su país.",false],
+["Al final hicieron una fiesta.",true]
+];
+const ORDER=[
+"El dragón comía frambuesas y no las compartía.",
+"Los dragones se burlaban de él.",
+"Se pintó de verde.",
+"En la laguna se le salió la pintura.",
+"Se fue a la ciudad y la gente le tiró cosas.",
+"Durmió en una granja y el granjero lo echó.",
+"Sintió nostalgia y volvió a su país.",
+"Compartió sus frambuesas e hicieron una fiesta."
+];
+const WHO=[
+["«¡Ja! ¡Ja! ¡No nos hagas reír! ¡Un dragón color frambuesa!»",["Los dragones verdes","La dragona","El granjero"],0],
+["«Ya no me queda ni una.»",["El gato","El pequeño dragón","La gente de la ciudad"],1],
+["«¡Tú, monstruo, desaparece de mi vista!»",["El granjero","Un dragón verde","La dragona"],0],
+["«Todos tienen un hogar, todos menos yo.»",["El ratón","El pequeño dragón","El granjero"],1],
+["«Te he echado de menos.»",["La dragona","El gato","La gente"],0],
+["«¡Comed todos!»",["Los dragones verdes","El granjero","El pequeño dragón"],2]
+];
+const SORT={items:[["Color frambuesa","f"],["Tiene lunares rojos","f"],["Es pequeño","f"],["Tiene alas","f"],["Al principio no comparte","p"],["Se siente triste y avergonzado","p"],["Es amable al saludar","p"],["Al final es generoso","p"]],
+bins:{f:"Cómo es por fuera (físico)",p:"Cómo es por dentro (psicológico)"}};
+
+const LEVELS=[
+{id:"mc",name:"Nivel 1",sub:"Alternativas",render:renderMC},
+{id:"tf",name:"Nivel 2",sub:"Verdadero o falso",render:renderTF},
+{id:"ord",name:"Nivel 3",sub:"Ordena la historia",render:renderOrder},
+{id:"who",name:"Nivel 4",sub:"¿Quién lo dijo?",render:renderWho},
+{id:"sort",name:"Nivel 5",sub:"¿Cómo es el dragón?",render:renderSort}
+];
+const done=new Set(store.get("md_done",[]));
+const levelsEl=document.getElementById("levels"),stage=document.getElementById("stage");
+let cur=store.get("md_lvl","mc");
+function drawLevels(){
+  levelsEl.innerHTML="";
+  LEVELS.forEach(l=>{const b=document.createElement("button");b.type="button";b.className="lvl"+(l.id===cur?" cur":"")+(done.has(l.id)?" done":"");
+    b.innerHTML=`<b>${l.name}</b><span>${l.sub}</span>`;b.onclick=()=>{cur=l.id;store.set("md_lvl",cur);drawLevels();open()};levelsEl.appendChild(b)});
+}
+function open(){stage.innerHTML="";LEVELS.find(l=>l.id===cur).render(stage)}
+function finish(id,box,got,total){
+  done.add(id);store.set("md_done",[...done]);drawLevels();
+  const w=document.createElement("div");w.className="win show";
+  w.textContent=got===total?"Terminaste el nivel completo. ¿Quieres contarme de qué se trataba?":"Terminaste el nivel. Las verdes muestran cómo era; si quieres, mira solo esas y sigue otro día.";
+  const again=document.createElement("button");again.className="btn alt";again.style.marginLeft="10px";again.textContent="Otra vez";again.onclick=open;
+  w.appendChild(again);box.appendChild(w);w.scrollIntoView({behavior:"smooth",block:"center"});
+}
+function shuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+
+function choiceBlock(box,qText,opts,correct,onAnswer,cls){
+  const q=document.createElement("div");q.className="q";
+  q.innerHTML=`<p class="qt">${qText}</p>`;
+  const o=document.createElement("div");o.className=cls||"opts";const fb=document.createElement("div");fb.className="fb";
+  const btns=opts.map((t,i)=>{const b=document.createElement("button");b.type="button";b.className="opt";b.textContent=t;
+    b.onclick=()=>{btns.forEach(x=>x.disabled=true);
+      add(1);
+      if(i===correct){b.classList.add("ok");fb.className="fb ok";fb.textContent="Eso es. La leíste bien.";onAnswer(true)}
+      else{b.classList.add("no");btns[correct].classList.add("ok");fb.className="fb no";fb.textContent="Esta era la verde. Lo importante es que lo pensaste.";onAnswer(false)}};
+    o.appendChild(b);return b});
+  q.appendChild(o);q.appendChild(fb);box.appendChild(q);
+}
+function runSet(box,id,items,make){
+  let answered=0,got=0;
+  items.forEach(it=>make(it,ok=>{answered++;if(ok)got++;if(answered===items.length)finish(id,box,got,items.length)}));
+}
+function renderMC(box){runSet(box,"mc",MC,([q,o,c],cb)=>choiceBlock(box,q,o,c,cb))}
+function renderTF(box){runSet(box,"tf",TF,([q,v],cb)=>choiceBlock(box,q,["Verdadero","Falso"],v?0:1,cb,"tf"))}
+function renderWho(box){runSet(box,"who",WHO,([q,o,c],cb)=>choiceBlock(box,"¿Quién dijo: "+q+"?",o,c,cb))}
+
+function renderOrder(box){
+  const q=document.createElement("div");q.className="q";
+  q.innerHTML=`<p class="qt">Toca las frases en el orden en que pasaron. Si te equivocas, toca una frase de arriba para devolverla.</p>`;
+  const line=document.createElement("div");line.className="line";const pool=document.createElement("div");pool.className="pool";
+  const fb=document.createElement("div");fb.className="fb";
+  const row=document.createElement("div");row.className="row";
+  const check=document.createElement("button");check.className="btn";check.textContent="Revisar";
+  row.appendChild(check);
+  let placed=[];
+  function draw(){
+    line.innerHTML="";pool.innerHTML="";
+    placed.forEach((t,i)=>{const b=document.createElement("button");b.type="button";b.className="step";b.textContent=t;b.onclick=()=>{placed.splice(i,1);draw()};line.appendChild(b)});
+    order.filter(t=>!placed.includes(t)).forEach(t=>{const b=document.createElement("button");b.type="button";b.className="step";b.textContent=t;b.onclick=()=>{placed.push(t);draw()};pool.appendChild(b)});
+  }
+  const order=shuffle(ORDER);
+  check.onclick=()=>{
+    if(placed.length<ORDER.length){fb.className="fb no";fb.textContent="Todavía faltan frases por ordenar.";return}
+    let got=0;[...line.children].forEach((b,i)=>{if(placed[i]===ORDER[i])got++;else b.classList.add("wrong")});
+    add(ORDER.length);fb.className="fb "+(got===ORDER.length?"ok":"no");
+    fb.textContent=got===ORDER.length?"¡Orden perfecto!":`${got} en su lugar. Las rojas van en otro lugar.`;
+    check.disabled=true;finish("ord",box,got,ORDER.length);
+  };
+  q.append(line,pool,row,fb);box.appendChild(q);draw();
+}
+
+function renderSort(box){
+  const q=document.createElement("div");q.className="q";
+  q.innerHTML=`<p class="qt">Toca una característica y después toca el cajón donde va.</p>`;
+  const pool=document.createElement("div");pool.className="chips";
+  const bins=document.createElement("div");bins.className="bins";
+  let sel=null,answered=0,got=0;
+  const binEls={};
+  Object.entries(SORT.bins).forEach(([k,label])=>{const b=document.createElement("div");b.className="bin";b.innerHTML=`<h3>${label}</h3>`;const c=document.createElement("div");c.className="chips";b.appendChild(c);
+    b.onclick=()=>{if(!sel)return;const [t,ans]=sel.data;sel.el.classList.remove("sel");sel.el.disabled=true;
+      sel.el.classList.add(ans===k?"ok":"no");add(1);if(ans===k){got++}else{sel.el.textContent=t+" (va en el otro)"}
+      binEls[ans].appendChild(sel.el);sel=null;answered++;if(answered===SORT.items.length)finish("sort",box,got,SORT.items.length)};
+    binEls[k]=c;bins.appendChild(b)});
+  shuffle(SORT.items).forEach(it=>{const c=document.createElement("button");c.type="button";c.className="chip";c.textContent=it[0];
+    c.onclick=e=>{e.stopPropagation();if(sel)sel.el.classList.remove("sel");sel={el:c,data:it};c.classList.add("sel")};pool.appendChild(c)});
+  q.append(pool,bins);box.appendChild(q);
+}
+drawLevels();open();
+
+/* escribir */
+const WR=[
+["¿Por qué el dragón se pintó de verde?","Porque quería ser igual a los otros dragones para que no se burlaran de él."],
+["Describe al dragón: cómo es por fuera y cómo es por dentro.","Es pequeño, color frambuesa y con lunares rojos. Al principio no compartía, pero al final fue generoso."],
+["¿Qué sintió el dragón cuando estaba lejos de su casa?","Sintió nostalgia. Extrañaba su país y a los otros dragones."],
+["¿Qué harías tú si ves que se burlan de un compañero por ser distinto?","Respuesta personal. Por ejemplo: le diría que no se burlen y jugaría con él."],
+["¿Te gustó el final? ¿Por qué?","Respuesta personal. Tiene que decir sí o no y dar una razón con «porque…»."]
+];
+const wbox=document.getElementById("writes");
+const drafts=store.get("md_drafts",{});
+WR.forEach(([q,a],i)=>{
+  const d=document.createElement("div");d.className="q";
+  d.innerHTML=`<p class="qt"><label for="w${i}">${q}</label></p><textarea id="w${i}" placeholder="Escribe aquí…"></textarea>
+  <div class="check"><label><input type="checkbox"> Empieza con mayúscula</label><label><input type="checkbox"> Termina con punto</label><label><input type="checkbox"> Responde lo que se pregunta</label><label><input type="checkbox"> Usa «porque» cuando hace falta</label></div>
+  <details><summary>Ver respuesta modelo (para el adulto)</summary><p>${a}</p></details>`;
+  const ta=d.querySelector("textarea");ta.value=drafts[i]||"";
+  ta.addEventListener("input",()=>{drafts[i]=ta.value;store.set("md_drafts",drafts)});
+  d.querySelectorAll("input[type=checkbox]").forEach(cb=>cb.addEventListener("change",()=>add(cb.checked?1:-1)));
+  wbox.appendChild(d);
+});
+
+document.getElementById("reset").onclick=()=>{score=0;add(0);done.clear();store.set("md_done",[]);drawLevels()};
+
+
+/* ---------- El camino del dragón ---------- */
+const FRECUENTES=["un","la","el","él","día","que","con","por","una","los","más","muy","no","sí","pero","casa","sol","todo"];
+const PALABRAS_SIL=[["fram","bue","sa"],["dra","gón"],["la","gu","na"],["pin","güi","no"],["gui","ta","rra"],["man","gue","ra"],["ju","gue","te"],["á","gui","la"],["hor","mi","ga"],["gran","je","ro"]];
+const MEMO=["día","un","la","él","que","con"];
+const PARADAS=[
+ {id:"caza",paso:"Parada 1",nombre:"Caza de palabras",desc:"Encontrar la palabra que dice el adulto",run:jCaza},
+ {id:"silabas",paso:"Parada 2",nombre:"Sílabas del dragón",desc:"Armar palabras con sus trozos",run:jSilabas},
+ {id:"memo",paso:"Parada 3",nombre:"Memorice",desc:"Encontrar las parejas de palabras",run:jMemo},
+ {id:"cuento",paso:"Parada 4",nombre:"¿Y en el cuento?",desc:"Contar la historia con tus palabras",run:jCuento},
+ {id:"detective",paso:"Parada 5",nombre:"Detective del libro",desc:"Buscar la página y mirar el dibujo",run:jDetective},
+ {id:"lugares",paso:"Parada 6",nombre:"¿Dónde pasó?",desc:"Unir cada escena con su lugar",run:jLugares},
+ {id:"quien",paso:"Parada 7",nombre:"¿Quién es quién?",desc:"Tocar el personaje del cuento",run:jQuien}
+];
+const paradasOk=new Set(store.get("md_paradas",[]));
+const mapaEl=document.getElementById("mapa"),jStage=document.getElementById("juego-stage");
+function drawMapa(){
+  mapaEl.innerHTML="";
+  PARADAS.forEach(p=>{const b=document.createElement("button");b.type="button";
+    b.className="parada"+(paradasOk.has(p.id)?" lista":"");
+    b.innerHTML=`<span class="paso">${p.paso}</span><h3>${p.nombre}</h3><p>${p.desc}</p>`+(paradasOk.has(p.id)?'<span class="dragon" aria-hidden="true">🐉</span>':"");
+    b.onclick=()=>{jStage.innerHTML="";p.run(jStage);jStage.scrollIntoView({behavior:"smooth",block:"start"})};
+    mapaEl.appendChild(b)});
+}
+function marcarParada(id){paradasOk.add(id);store.set("md_paradas",[...paradasOk]);drawMapa()}
+function cajaJuego(box,titulo,reglas){
+  const d=document.createElement("div");d.className="jbox";
+  d.innerHTML=`<h3>${titulo}</h3><p class="reglas">${reglas}</p>`;box.appendChild(d);return d;
+}
+function cerrar(caja,id,texto){
+  marcarParada(id);
+  const w=document.createElement("div");w.className="win show";w.textContent=texto;
+  const otra=document.createElement("button");otra.className="btn alt";otra.style.marginLeft="10px";otra.textContent="Jugar de nuevo";
+  otra.onclick=()=>{const p=PARADAS.find(x=>x.id===id);jStage.innerHTML="";p.run(jStage)};
+  w.appendChild(otra);caja.appendChild(w);
+}
+
+function jCaza(box){
+  const caja=cajaJuego(box,"Caza de palabras","El adulto lee en voz alta la palabra de arriba. El niño toca la misma abajo. Son 6 rondas.");
+  const grande=document.createElement("div");grande.className="grande";
+  const opciones=document.createElement("div");opciones.className="pal";
+  const marc=document.createElement("div");marc.className="marcador";
+  caja.append(grande,opciones,marc);
+  let ronda=0;const total=6;
+  function siguiente(){
+    if(ronda===total){cerrar(caja,"caza","¡Llegaste al final de la parada! El dragón avanzó un tramo.");return}
+    ronda++;marc.textContent=`Ronda ${ronda} de ${total}`;
+    const set=shuffle(FRECUENTES).slice(0,4);const buena=set[Math.floor(Math.random()*set.length)];
+    grande.textContent=buena;opciones.innerHTML="";
+    set.forEach(p=>{const b=document.createElement("button");b.type="button";b.textContent=p;
+      b.onclick=()=>{add(1);
+        if(p===buena){b.classList.add("ok");[...opciones.children].forEach(x=>x.disabled=true);setTimeout(siguiente,600)}
+        else{b.classList.add("no")}};
+      opciones.appendChild(b)});
+  }
+  siguiente();
+}
+
+function jSilabas(box){
+  const caja=cajaJuego(box,"Sílabas del dragón","Toca los trozos en orden para armar la palabra. Si te equivocas, toca arriba para devolver el trozo.");
+  const linea=document.createElement("div");linea.className="silabas";
+  const banco=document.createElement("div");banco.className="banco";
+  const fb=document.createElement("div");fb.className="fb";fb.style.textAlign="center";
+  const marc=document.createElement("div");marc.className="marcador";
+  caja.append(linea,banco,fb,marc);
+  const palabras=shuffle(PALABRAS_SIL).slice(0,5);let i=-1,puestas=[];
+  function pintar(){
+    const p=palabras[i];linea.innerHTML="";banco.innerHTML="";
+    puestas.forEach((s,k)=>{const b=document.createElement("button");b.type="button";b.textContent=s;
+      b.onclick=()=>{puestas.splice(k,1);pintar()};linea.appendChild(b)});
+    const quedan=p.slice();puestas.forEach(s=>{const k=quedan.indexOf(s);if(k>-1)quedan.splice(k,1)});
+    shuffle(quedan).forEach(s=>{const b=document.createElement("button");b.type="button";b.textContent=s;
+      b.onclick=()=>{puestas.push(s);add(1);
+        if(puestas.length===p.length){
+          const bien=puestas.join("")===p.join("");
+          fb.className="fb "+(bien?"ok":"no");
+          fb.textContent=bien?"¡Esa es la palabra! "+p.join(""):"Quedó «"+puestas.join("")+"». La palabra era «"+p.join("")+"».";
+          setTimeout(nueva,1300);
+        }
+        pintar()};
+      banco.appendChild(b)});
+  }
+  function nueva(){
+    i++;puestas=[];fb.textContent="";
+    if(i===palabras.length){cerrar(caja,"silabas","¡Armaste todas las palabras! El dragón avanzó un tramo.");return}
+    marc.textContent=`Palabra ${i+1} de ${palabras.length}`;pintar();
+  }
+  nueva();
+}
+
+function jMemo(box){
+  const caja=cajaJuego(box,"Memorice de palabras","Da vuelta dos tarjetas y busca las parejas iguales. Léelas en voz alta cuando las des vuelta.");
+  const grid=document.createElement("div");grid.className="memo";
+  const marc=document.createElement("div");marc.className="marcador";
+  caja.append(grid,marc);
+  const cartas=shuffle([...MEMO,...MEMO]);let abiertas=[],listas=0,bloqueo=false;
+  cartas.forEach(p=>{const b=document.createElement("button");b.type="button";b.textContent=p;b.dataset.p=p;
+    b.onclick=()=>{
+      if(bloqueo||b.classList.contains("vista")||b.classList.contains("hecha"))return;
+      b.classList.add("vista");abiertas.push(b);add(1);
+      if(abiertas.length===2){
+        bloqueo=true;
+        const [a,c]=abiertas;
+        setTimeout(()=>{
+          if(a.dataset.p===c.dataset.p){a.classList.replace("vista","hecha");c.classList.replace("vista","hecha");listas++;
+            marc.textContent=`Parejas encontradas: ${listas} de ${MEMO.length}`;
+            if(listas===MEMO.length)cerrar(caja,"memo","¡Encontraste todas las parejas! El dragón avanzó un tramo.")}
+          else{a.classList.remove("vista");c.classList.remove("vista")}
+          abiertas=[];bloqueo=false;},800);
+      }};
+    grid.appendChild(b)});
+  marc.textContent=`Parejas encontradas: 0 de ${MEMO.length}`;
+}
+
+function jCuento(box){
+  const caja=cajaJuego(box,"¿Y en el cuento?","Saca una tarjeta y cuenta esa parte con tus palabras. Vale mirar los dibujos del libro.");
+  const grande=document.createElement("div");grande.className="grande";grande.style.fontSize="26px";
+  grande.textContent="Toca el botón para sacar una tarjeta";
+  const row=document.createElement("div");row.className="row";row.style.justifyContent="center";
+  const b=document.createElement("button");b.className="btn";b.textContent="Sacar tarjeta";
+  const marc=document.createElement("div");marc.className="marcador";
+  row.appendChild(b);caja.append(grande,row,marc);
+  const tarjetas=shuffle([
+    "Cuenta cómo era el pequeño dragón.",
+    "¿Qué hacía cada mañana con las frambuesas?",
+    "¿Qué le decían los otros dragones?",
+    "Cuenta la parte de la pintura verde.",
+    "¿Qué pasó en la laguna?",
+    "¿Qué pasó cuando llegó a la ciudad?",
+    "Cuenta la parte de la granja y el gato.",
+    "¿Qué soñó esa noche?",
+    "¿Por qué decidió volver?",
+    "¿Qué le dijo la dragona?",
+    "¿Cómo termina el cuento?",
+    "Si tú fueras el dragón, ¿qué habrías hecho?"
+  ]);
+  let n=0;
+  b.onclick=()=>{
+    if(n===tarjetas.length){cerrar(caja,"cuento","¡Contaste todo el cuento! El dragón llegó a casa.");b.disabled=true;return}
+    grande.textContent=tarjetas[n];n++;add(1);marc.textContent=`Tarjeta ${n} de ${tarjetas.length}`;
+    if(n===tarjetas.length)b.textContent="Terminar";
+  };
+}
+
+/* Parada 5: detective del libro (se juega con el libro en la mano) */
+const PISTAS=[
+ ["Página 5","Busca al pequeño dragón caminando con su cesta. ¿Qué lleva en la mano?"],
+ ["Página 7","El dragón come frambuesas apoyado en un árbol. ¿De qué color es su cesta?"],
+ ["Página 9","Aparecen los otros dragones. ¿De qué color son? ¿Cuántos ves?"],
+ ["Páginas 12 y 13","Los dragones se burlan. Mírale la cara al pequeño dragón: ¿cómo crees que se siente?"],
+ ["Página 16","Aquí compró algo para cambiar de color. ¿Qué dos cosas ves en el dibujo?"],
+ ["Páginas 18 y 19","El dragón se baña. ¿Qué le está pasando al agua de la laguna?"],
+ ["Página 24","Es de noche y no puede dormir. ¿Qué se ve por la ventana?"],
+ ["Páginas 28 y 29","La gente de la ciudad le tira cosas. Nombra tres cosas que le tiran."],
+ ["Página 34","El dragón duerme en el establo. Busca al gato y nombra tres animales más."],
+ ["Páginas 36 y 37","Esta es su pesadilla. ¿Qué lo tiene encerrado?"],
+ ["Páginas 38 y 39","El granjero lo echa. ¿Con qué lo amenaza?"],
+ ["Páginas 44 y 45","Busca los pájaros, las hormigas y el ratón. ¿Adónde van las hormigas?"],
+ ["Páginas 54 y 55","La dragona le habla al oído. ¿De qué color es ella?"],
+ ["Páginas 58 y 59","La fiesta final. ¿Qué están haciendo los dragones?"]
+];
+function jDetective(box){
+  const caja=cajaJuego(box,"Detective del libro","Con el libro en la mano. Sale una pista, el niño busca esa página y mira el dibujo para responder. No hay que leer nada.");
+  const grande=document.createElement("div");grande.className="grande";grande.style.fontSize="22px";
+  const pagina=document.createElement("div");pagina.className="grande";pagina.style.fontSize="32px";pagina.style.marginBottom="0";
+  pagina.textContent="🔍";grande.textContent="Toca el botón para sacar una pista";
+  const row=document.createElement("div");row.className="row";row.style.justifyContent="center";
+  const b=document.createElement("button");b.className="btn";b.textContent="Sacar pista";
+  const marc=document.createElement("div");marc.className="marcador";
+  row.appendChild(b);caja.append(pagina,grande,row,marc);
+  const pistas=shuffle(PISTAS).slice(0,6);let n=0;
+  b.onclick=()=>{
+    if(n===pistas.length){cerrar(caja,"detective","¡Encontraste todas las páginas! El dragón avanzó un tramo.");b.disabled=true;return}
+    pagina.textContent=pistas[n][0];grande.textContent=pistas[n][1];n++;add(1);
+    marc.textContent=`Pista ${n} de ${pistas.length}`;
+    if(n===pistas.length)b.textContent="Terminar";
+  };
+}
+
+/* Parada 6: unir escena con lugar */
+const LUGARES={
+  laguna:{nombre:"La laguna",icono:'<svg viewBox="0 0 80 60" aria-hidden="true"><ellipse cx="40" cy="42" rx="34" ry="14" fill="#7FC4D8"/><path d="M12 42q8-5 16 0t16 0 16 0" stroke="#2F7F97" stroke-width="2.5" fill="none"/><circle cx="62" cy="14" r="8" fill="#F5C33B"/></svg>'},
+  ciudad:{nombre:"La ciudad",icono:'<svg viewBox="0 0 80 60" aria-hidden="true"><rect x="10" y="20" width="16" height="34" fill="#9C8FA8"/><rect x="30" y="10" width="18" height="44" fill="#7C6E88"/><rect x="52" y="26" width="16" height="28" fill="#B4A7BE"/><g fill="#FFF3C4"><rect x="14" y="26" width="4" height="5"/><rect x="34" y="18" width="4" height="5"/><rect x="40" y="18" width="4" height="5"/><rect x="56" y="32" width="4" height="5"/></g></svg>'},
+  granja:{nombre:"La granja",icono:'<svg viewBox="0 0 80 60" aria-hidden="true"><rect x="16" y="30" width="44" height="24" fill="#C98A2B"/><path d="M12 30 38 12l26 18z" fill="#8E4B2A"/><rect x="34" y="38" width="12" height="16" fill="#6B3E22"/><rect x="0" y="52" width="80" height="6" fill="#7FA05A"/></svg>'},
+  bosque:{nombre:"El bosque",icono:'<svg viewBox="0 0 80 60" aria-hidden="true"><rect x="0" y="50" width="80" height="8" fill="#7FA05A"/><g fill="#2F6B3A"><path d="M20 50 28 22l8 28z"/><path d="M44 50 54 16l10 34z"/></g><rect x="26" y="44" width="4" height="10" fill="#6B4A2A"/><rect x="52" y="40" width="4" height="12" fill="#6B4A2A"/></svg>'},
+  pais:{nombre:"El País de los Dragones",icono:'<svg viewBox="0 0 80 60" aria-hidden="true"><rect x="0" y="48" width="80" height="10" fill="#C4703C"/><path d="M4 48 24 18l20 30z" fill="#E08A3C"/><path d="M36 48 56 24l20 24z" fill="#C25E2E"/><circle cx="64" cy="14" r="7" fill="#F5C33B"/></svg>'}
+};
+const ESCENAS=[
+ ["Se le sale la pintura verde","laguna"],
+ ["Le tiran macetas y tomates","ciudad"],
+ ["Un gato se enrolla en su cola","granja"],
+ ["Ve pájaros, hormigas y un ratón","bosque"],
+ ["Los dragones bailan burlándose","pais"],
+ ["El granjero lo echa con una escoba","granja"],
+ ["Comparte sus frambuesas en la fiesta","pais"],
+ ["Saluda diciendo «¡Soy un dragón!»","ciudad"]
+];
+function jLugares(box){
+  const caja=cajaJuego(box,"¿Dónde pasó?","Sale una escena del cuento y el niño toca el lugar donde ocurrió.");
+  const grande=document.createElement("div");grande.className="grande";grande.style.fontSize="24px";
+  const opciones=document.createElement("div");opciones.className="lugs";
+  const marc=document.createElement("div");marc.className="marcador";
+  caja.append(grande,opciones,marc);
+  const ronda=shuffle(ESCENAS).slice(0,6);let i=0;
+  function pintar(){
+    if(i===ronda.length){cerrar(caja,"lugares","¡Ubicaste todas las escenas! El dragón llegó a casa.");return}
+    const [texto,clave]=ronda[i];grande.textContent=texto;marc.textContent=`Escena ${i+1} de ${ronda.length}`;
+    opciones.innerHTML="";
+    Object.entries(LUGARES).forEach(([k,l])=>{
+      const b=document.createElement("button");b.type="button";b.className="lug";
+      b.innerHTML=l.icono+`<span>${l.nombre}</span>`;
+      b.onclick=()=>{add(1);
+        if(k===clave){b.classList.add("ok");[...opciones.children].forEach(x=>x.disabled=true);i++;setTimeout(pintar,700)}
+        else{b.classList.add("no")}};
+      opciones.appendChild(b)});
+  }
+  pintar();
+}
+
+
+/* Parada 7: reconocer personajes con dibujos */
+const PERSONAJES=[
+ ["rosa","El dragón color frambuesa","i-dragon-rosa"],
+ ["verde","Los dragones verdes","i-dragon-verde"],
+ ["dragona","La dragona","i-dragona"],
+ ["granjero","El granjero","i-granjero"],
+ ["gato","El gato de la granja","i-gato"],
+ ["gente","La gente de la ciudad","i-gente"]
+];
+const QUIEN=[
+ ["Le encantan las frambuesas y no las quiere compartir","rosa"],
+ ["Bailan a su alrededor y se burlan de él","verde"],
+ ["Le dice bajito: «te he echado de menos»","dragona"],
+ ["Lo amenaza con una escoba","granjero"],
+ ["Se enrolla en su cola y ronronea","gato"],
+ ["Le tiran macetas y tomates por la ventana","gente"],
+ ["Se pinta de verde para ser como los demás","rosa"],
+ ["Cierra las puertas a cal y canto","gente"]
+];
+function jQuien(box){
+  const caja=cajaJuego(box,"¿Quién es quién?","El adulto lee la frase y el niño toca el personaje. Los dibujos son de esta página, no del libro.");
+  const grande=document.createElement("div");grande.className="grande";grande.style.fontSize="24px";
+  const opciones=document.createElement("div");opciones.className="pers";
+  const marc=document.createElement("div");marc.className="marcador";
+  caja.append(grande,opciones,marc);
+  const ronda=shuffle(QUIEN).slice(0,6);let i=0;
+  function pintar(){
+    if(i===ronda.length){cerrar(caja,"quien","¡Conoces a todos los personajes! El dragón avanzó un tramo.");return}
+    const [frase,clave]=ronda[i];grande.textContent=frase;marc.textContent=`Frase ${i+1} de ${ronda.length}`;
+    opciones.innerHTML="";
+    shuffle(PERSONAJES).forEach(([k,nombre,icono])=>{
+      const b=document.createElement("button");b.type="button";b.className="pers-op";
+      b.innerHTML=`<svg viewBox="0 0 100 80" aria-hidden="true"><use href="#${icono}"/></svg><span>${nombre}</span>`;
+      b.onclick=()=>{add(1);
+        if(k===clave){b.classList.add("ok");[...opciones.children].forEach(x=>x.disabled=true);i++;setTimeout(pintar,700)}
+        else{b.classList.add("no")}};
+      opciones.appendChild(b)});
+  }
+  pintar();
+}
+
+
+/* ---------- Prueba final: mismo formato de la profesora ---------- */
+const F_ALT=[
+ ["Al dragón no le gustaba compartir sus:",["Naranjas","Frambuesas","Frutillas"],1],
+ ["El dragón decidió irse del País de los Dragones porque:",["Los otros dragones se burlaban de él","Quería viajar por el mundo","Quería conocer a otros animales"],0],
+ ["Al llegar a la ciudad, la gente:",["Lo recibió con un pastel y galletas","Lo recibió con una fiesta de disfraces","Se escondió y le tiró macetas, piedras y tomates"],2],
+ ["¿Quiénes recibieron con simpatía al dragón?",["Los animales del zoológico","El león y el ratón","Los animales de la granja"],2],
+ ["¿Qué animalito se enrolló en la cola del dragón?",["Un gato","Un perro","Una serpiente"],0],
+ ["¿Qué significa la palabra «cesta»?",["Cabaña","Canasta","Caja"],1],
+ ["¿Qué significa la palabra «carantoñas»?",["Cariños","Rasguños","Golpes"],0],
+ ["El dragón decidió pintarse de verde porque:",["Se destiñó al caerse a la laguna","Ya no le gustaba su color","Quería parecerse a los demás dragones"],2]
+];
+const F_ORDEN=[
+ "Por la mañana temprano, iba a buscar frambuesas.",
+ "Compró un bote de pintura y un pincel, y se pintó de verde.",
+ "Hizo su maleta y se marchó del País de los Dragones.",
+ "Celebraron una fiesta y la dragona cantó."
+];
+const F_VOCAB=[
+ ["«Los demás dragones se ENFADABAN y le hacían burla por su color.» La palabra destacada se puede reemplazar por:",["Alegraban","Enojaban","Entristecían"],1],
+ ["¿Por qué se dice que el dragón era color frambuesa?",["Porque no le gustaban las frambuesas","Porque su cuerpo entero era de color frambuesa","Porque comía muchas frutillas"],1],
+ ["«Iba a buscar frambuesas y no paraba hasta tener la CESTA completa.» La palabra destacada se puede reemplazar por:",["Caja","Balde","Canasta"],2],
+ ["«Un rato después se topó con un bosquecillo. Se enroscó junto a los arbustos y se durmió.» ¿Qué quiere decir?",["Llegó a una casa con muchos árboles y se durmió","Luego de caminar llegó a un bosque, se sentó a descansar","Luego de caminar llegó a un bosque y se acomodó junto a unos árboles y se durmió"],2]
+];
+const F_OPINION=[
+ "Cuando el granjero descubrió al dragón, lo corrió amenazándolo con el palo de una escoba. ¿Estás de acuerdo con la actitud del granjero?",
+ "¿Estás de acuerdo con que los demás dragones se burlaran del dragón color frambuesa?",
+ "Si tú hubieras sido el dragón color frambuesa, ¿habrías compartido las frambuesas que recolectabas?"
+];
+const F_ESCUCHA=[
+ "Al final del cuento, la dragona canta una canción. Escúchala del libro y responde: ¿para qué dice la canción que hay que comer frambuesas?",
+ "Según la canción, ¿qué hay que tener en la piel para saltar requetebién?"
+];
+const RUBRICA=[
+ ["3 puntos","Explica de forma clara y coherente, respetando puntos y mayúsculas."],
+ ["2 puntos","Explica de forma poco coherente. A veces respeta los signos."],
+ ["1 punto","No alcanza a explicar la respuesta."]
+];
+
+function pruebaFinal(){
+  const box=document.getElementById("final-stage");if(!box)return;
+  box.innerHTML="";
+  const puntos={I:0,II:0,III:0,IV:0,V:0};
+  const total=document.createElement("div");total.className="marcador";
+  function pintarTotal(){
+    const t=puntos.I+puntos.II+puntos.III+puntos.IV+puntos.V;
+    total.innerHTML=`<b>Puntaje del ensayo: ${t} de 26</b><br>Es práctica, no una nota. Lo que importa es hasta dónde alcanzó a llegar.`;
+  }
+  function titulo(txt,pts){
+    const d=document.createElement("div");d.className="q";
+    d.innerHTML=`<p class="qt">${txt} <span class="pts">${pts}</span></p>`;box.appendChild(d);return d;
+  }
+
+  /* I */
+  titulo("I. Lee atentamente y encierra la respuesta correcta.","8 puntos");
+  F_ALT.forEach(([q,o,c])=>choiceBlock(box,q,o,c,ok=>{if(ok){puntos.I++;pintarTotal()}}));
+
+  /* II */
+  const s2=titulo("II. Identifica el orden en que ocurrieron los hechos, del 1 al 4.","4 puntos");
+  const linea=document.createElement("div");linea.className="line";
+  const pool=document.createElement("div");pool.className="pool";
+  const fb2=document.createElement("div");fb2.className="fb";
+  const rev=document.createElement("button");rev.className="btn";rev.textContent="Revisar el orden";
+  const row2=document.createElement("div");row2.className="row";row2.appendChild(rev);
+  let puestas=[];const mezcla=shuffle(F_ORDEN);
+  function pintar2(){
+    linea.innerHTML="";pool.innerHTML="";
+    puestas.forEach((t,i)=>{const b=document.createElement("button");b.type="button";b.className="step";b.textContent=t;b.onclick=()=>{puestas.splice(i,1);pintar2()};linea.appendChild(b)});
+    mezcla.filter(t=>!puestas.includes(t)).forEach(t=>{const b=document.createElement("button");b.type="button";b.className="step";b.textContent=t;b.onclick=()=>{puestas.push(t);add(1);pintar2()};pool.appendChild(b)});
+  }
+  rev.onclick=()=>{
+    if(puestas.length<F_ORDEN.length){fb2.className="fb no";fb2.textContent="Faltan hechos por ordenar.";return}
+    let ok=0;[...linea.children].forEach((b,i)=>{if(puestas[i]===F_ORDEN[i])ok++;else b.classList.add("wrong")});
+    puntos.II=ok;pintarTotal();rev.disabled=true;
+    fb2.className="fb "+(ok===F_ORDEN.length?"ok":"no");
+    fb2.textContent=ok===F_ORDEN.length?"Orden correcto: 4 de 4.":`${ok} de 4 en su lugar.`;
+  };
+  s2.append(linea,pool,row2,fb2);pintar2();
+
+  /* III */
+  titulo("III. Encierra en un círculo la alternativa correcta.","4 puntos");
+  F_VOCAB.forEach(([q,o,c])=>choiceBlock(box,q,o,c,ok=>{if(ok){puntos.III++;pintarTotal()}}));
+
+  /* IV */
+  const s4=titulo("IV. Responde sí o no, y explica por qué.","6 puntos");
+  s4.innerHTML+='<p class="reglas">El niño responde en voz alta primero. El adulto anota o él escribe. Se evalúa la explicación, no la ortografía.</p>';
+  F_OPINION.forEach((q,i)=>{
+    const d=document.createElement("div");d.className="abierta";
+    d.innerHTML=`<p><b>${i+1}.</b> ${q}</p>`;
+    const g=document.createElement("div");g.className="sino";
+    ["Sí","No"].forEach(et=>{const b=document.createElement("button");b.type="button";b.className="opt";b.textContent=et;
+      b.onclick=()=>{[...g.children].forEach(x=>x.classList.remove("ok"));b.classList.add("ok");add(1)};g.appendChild(b)});
+    const ta=document.createElement("textarea");ta.id="op"+i;ta.setAttribute("aria-label","Por qué "+(i+1));ta.placeholder="¿Por qué?";
+    const rub=document.createElement("div");rub.className="rub";
+    [["2 puntos","Explica su opinión con una razón clara."],["1 punto","Responde sí o no, pero sin explicar."]].forEach(([et,desc],k)=>{
+      const b=document.createElement("button");b.type="button";b.className="opt";b.innerHTML=`<b>${et}</b><br><span>${desc}</span>`;
+      b.onclick=()=>{[...rub.children].forEach(x=>x.classList.remove("ok"));b.classList.add("ok");
+        const previo=Number(d.dataset.pts||0);puntos.IV+=(2-k)-previo;d.dataset.pts=2-k;pintarTotal()};
+      rub.appendChild(b)});
+    d.append(g,ta,rub);s4.appendChild(d)});
+
+  /* V */
+  const s5=titulo("V. Escucha el extracto del texto y responde.","4 puntos");
+  s5.innerHTML+='<p class="reglas">El adulto lee en voz alta la canción de la dragona, en las últimas páginas del libro. El niño solo escucha y responde.</p>';
+  F_ESCUCHA.forEach((q,i)=>{
+    const d=document.createElement("div");d.className="abierta";
+    d.innerHTML=`<p><b>${i+1}.</b> ${q}</p><textarea id="es${i}" aria-label="Respuesta escucha ${i+1}"></textarea>`;
+    const rub=document.createElement("div");rub.className="rub";
+    [["2 puntos","Responde con lo que dice la canción."],["1 punto","Responde algo relacionado."]].forEach(([et,desc],k)=>{
+      const b=document.createElement("button");b.type="button";b.className="opt";b.innerHTML=`<b>${et}</b><br><span>${desc}</span>`;
+      b.onclick=()=>{[...rub.children].forEach(x=>x.classList.remove("ok"));b.classList.add("ok");
+        const previo=Number(d.dataset.pts||0);puntos.V+=(2-k)-previo;d.dataset.pts=2-k;pintarTotal()};
+      rub.appendChild(b)});
+    d.appendChild(rub);s5.appendChild(d)});
+
+  /* bonus */
+  const s6=titulo("Bonus","décima");
+  s6.innerHTML+='<p>Imagina al dragón repartiendo sus frambuesas en la fiesta. <b>Haz un dibujo de ese momento en una hoja</b> y guárdalo con el material.</p><div class="escena"><svg viewBox="0 0 100 80"><use href="#i-fiesta"/></svg><svg viewBox="0 0 100 80"><use href="#i-frambuesa"/></svg></div>';
+
+  pintarTotal();box.appendChild(total);
+  const row=document.createElement("div");row.className="row";
+  const otra=document.createElement("button");otra.className="btn alt";otra.textContent="Empezar el ensayo de nuevo";
+  otra.onclick=pruebaFinal;row.appendChild(otra);box.appendChild(row);
+}
+pruebaFinal();
+
+drawMapa();
+})();
+
+</script>
+
+</body></html>
